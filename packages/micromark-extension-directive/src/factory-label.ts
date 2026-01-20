@@ -29,6 +29,7 @@ export function factoryLabel(
     effects.enter(markerType)
     effects.consume(code)
     effects.exit(markerType)
+
     return afterStart
   }
 
@@ -38,10 +39,12 @@ export function factoryLabel(
       effects.consume(code)
       effects.exit(markerType)
       effects.exit(type)
+
       return ok
     }
 
     effects.enter(stringType)
+
     return lineStart(code)
   }
 
@@ -55,8 +58,12 @@ export function factoryLabel(
       contentType: constants.contentTypeText,
       previous
     })
-    if (previous) previous.next = token
+    if (previous) {
+      previous.next = token
+    }
+
     previous = token
+
     return data(code)
   }
 
@@ -74,6 +81,7 @@ export function factoryLabel(
 
     if (code === codes.rightSquareBracket && !balance--) {
       effects.exit(types.chunkText)
+
       return atClosingBrace(code)
     }
 
@@ -84,10 +92,12 @@ export function factoryLabel(
 
       effects.consume(code)
       effects.exit(types.chunkText)
+
       return lineStart
     }
 
     effects.consume(code)
+
     return code === codes.backslash ? dataEscape : data
   }
 
@@ -99,6 +109,7 @@ export function factoryLabel(
     ) {
       effects.consume(code)
       size++
+
       return data
     }
 
@@ -111,6 +122,7 @@ export function factoryLabel(
     effects.consume(code)
     effects.exit(markerType)
     effects.exit(type)
+
     return ok
   }
 }

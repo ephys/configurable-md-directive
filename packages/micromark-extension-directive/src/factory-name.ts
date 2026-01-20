@@ -31,6 +31,7 @@ export function factoryName(
 
     effects.enter(type)
     effects.consume(code)
+
     return name
   }
 
@@ -44,6 +45,7 @@ export function factoryName(
         code !== codes.underscore)
     ) {
       effects.exit(type)
+
       return context.previous === codes.dash ||
         context.previous === codes.underscore
         ? nok(code)
@@ -51,6 +53,7 @@ export function factoryName(
     }
 
     effects.consume(code)
+
     return name
   }
 

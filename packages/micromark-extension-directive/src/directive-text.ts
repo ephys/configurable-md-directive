@@ -26,7 +26,7 @@ function previous(
   // If there is a previous code, there will always be a tail.
   return (
     code !== codes.colon ||
-    this.events[this.events.length - 1][1].type === types.characterEscape
+    this.events.at(-1)![1].type === types.characterEscape
   )
 }
 
@@ -43,6 +43,7 @@ function tokenizeDirectiveText(
     effects.enter('directiveTextMarker')
     effects.consume(code)
     effects.exit('directiveTextMarker')
+
     return factoryName(this, effects, afterName, nok, 'directiveTextName')
   }
 
@@ -62,6 +63,7 @@ function tokenizeDirectiveText(
 
   const afterAttributes = (code: Parameters<State>[0]): ReturnType<State> => {
     effects.exit('directiveText')
+
     return ok(code)
   }
 

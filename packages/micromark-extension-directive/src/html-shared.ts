@@ -5,74 +5,77 @@ import type {
 import {ok as assert} from 'devlop'
 import {parseEntities} from 'parse-entities'
 import type {Directive, HtmlOptions} from './index.js'
+import {EMPTY_OBJECT, pojo} from '@sequelize/utils'
 
-export const own = {}.hasOwnProperty
-
-type AttributeTuple = [key: string, value: string]
+// eslint-disable-next-line @typescript-eslint/unbound-method
+export const own = Object.prototype.hasOwnProperty
 
 export function enter(this: CompileContext, type: Directive['type']): void {
   let stack = this.getData('directiveStack')
-  if (!stack) this.setData('directiveStack', (stack = []))
+  if (!stack) {
+    this.setData('directiveStack', (stack = []))
+  }
+
   stack.push({type, name: ''})
 }
 
-export const exitName: MicromarkHandle = function (
+export const exitName: MicromarkHandle = function exitName(
   this: CompileContext,
   token
 ) {
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
-  stack[stack.length - 1].name = this.sliceSerialize(token)
+  stack.at(-1)!.name = this.sliceSerialize(token)
 }
 
-export const enterLabel: MicromarkHandle = function (this: CompileContext) {
+export const enterLabel: MicromarkHandle = function enterLabel(
+  this: CompileContext
+) {
   this.buffer()
 }
 
-export const exitLabel: MicromarkHandle = function (this: CompileContext) {
+export const exitLabel: MicromarkHandle = function exitLabel(
+  this: CompileContext
+) {
   const data = this.resume()
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
-  stack[stack.length - 1].label = data
+  stack.at(-1)!.label = data
 }
 
-export const enterAttributes: MicromarkHandle = function (
+export const enterAttributes: MicromarkHandle = function enterAttributes(
   this: CompileContext
 ) {
   this.buffer()
   this.setData('directiveAttributes', [])
 }
 
-export const exitAttributeIdValue: MicromarkHandle = function (
-  this: CompileContext,
-  token
-) {
-  const attributes = this.getData('directiveAttributes')
-  assert(attributes, 'expected attributes')
-  attributes.push([
-    'id',
-    parseEntities(this.sliceSerialize(token), {
-      attribute: true
-    })
-  ])
-}
+export const exitAttributeIdValue: MicromarkHandle =
+  function exitAttributeIdValue(this: CompileContext, token) {
+    const attributes = this.getData('directiveAttributes')
+    assert(attributes, 'expected attributes')
+    attributes.push([
+      'id',
+      parseEntities(this.sliceSerialize(token), {
+        attribute: true
+      })
+    ])
+  }
 
-export const exitAttributeClassValue: MicromarkHandle = function (
-  this: CompileContext,
-  token
-) {
-  const attributes = this.getData('directiveAttributes')
-  assert(attributes, 'expected attributes')
+export const exitAttributeClassValue: MicromarkHandle =
+  function exitAttributeClassValue(this: CompileContext, token) {
+    const attributes = this.getData('directiveAttributes')
+    assert(attributes, 'expected attributes')
 
-  attributes.push([
-    'class',
-    parseEntities(this.sliceSerialize(token), {
-      attribute: true
-    })
-  ])
-}
+    attributes.push([
+      'class',
+      parseEntities(this.sliceSerialize(token), {
+        attribute: true
+      })
+    ])
+  }
 
-export const exitAttributeName: MicromarkHandle = function (
+export const exitAttributeName: MicromarkHandle = function exitAttributeName(
   this: CompileContext,
   token
 ) {
@@ -84,31 +87,32 @@ export const exitAttributeName: MicromarkHandle = function (
   attributes.push([this.sliceSerialize(token), ''])
 }
 
-export const exitAttributeValue: MicromarkHandle = function (
+export const exitAttributeValue: MicromarkHandle = function exitAttributeValue(
   this: CompileContext,
   token
 ) {
   const attributes = this.getData('directiveAttributes')
   assert(attributes, 'expected attributes')
-  attributes[attributes.length - 1][1] = parseEntities(
-    this.sliceSerialize(token),
-    {attribute: true}
-  )
+  attributes.at(-1)![1] = parseEntities(this.sliceSerialize(token), {
+    attribute: true
+  })
 }
 
-export const exitAttributes: MicromarkHandle = function (this: CompileContext) {
+export const exitAttributes: MicromarkHandle = function exitAttributes(
+  this: CompileContext
+) {
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
   const attributes = this.getData('directiveAttributes')
   assert(attributes, 'expected attributes')
-  const cleaned: Record<string, string> = {}
+  const cleaned: Record<string, string> = pojo()
   let index = -1
 
   while (++index < attributes.length) {
     const attribute = attributes[index]
 
     if (attribute[0] === 'class' && cleaned.class) {
-      cleaned.class += ' ' + attribute[1]
+      cleaned.class += ` ${attribute[1]}`
     } else {
       cleaned[attribute[0]] = attribute[1]
     }
@@ -116,31 +120,37 @@ export const exitAttributes: MicromarkHandle = function (this: CompileContext) {
 
   this.resume()
   this.setData('directiveAttributes')
-  stack[stack.length - 1].attributes = cleaned
+  stack.at(-1)!.attributes = cleaned
 }
 
-export const exitContainerContent: MicromarkHandle = function (
-  this: CompileContext
-) {
-  const data = this.resume()
-  const stack = this.getData('directiveStack')
-  assert(stack, 'expected directive stack')
-  stack[stack.length - 1].content = data
-}
+export const exitContainerContent: MicromarkHandle =
+  function exitContainerContent(this: CompileContext) {
+    const data = this.resume()
+    const stack = this.getData('directiveStack')
+    assert(stack, 'expected directive stack')
+    stack.at(-1)!.content = data
+  }
 
-export const exitContainerFence: MicromarkHandle = function (
+export const exitContainerFence: MicromarkHandle = function exitContainerFence(
   this: CompileContext
 ) {
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
-  const directive = stack[stack.length - 1]
-  if (!directive._fenceCount) directive._fenceCount = 0
+  const directive = stack.at(-1)!
+  if (!directive._fenceCount) {
+    directive._fenceCount = 0
+  }
+
   directive._fenceCount++
-  if (directive._fenceCount === 1) this.setData('slurpOneLineEnding', true)
+  if (directive._fenceCount === 1) {
+    this.setData('slurpOneLineEnding', true)
+  }
 }
 
-export function createExit(options: HtmlOptions): MicromarkHandle {
-  return function (this: CompileContext): undefined {
+export function createExit(
+  options: HtmlOptions | undefined = EMPTY_OBJECT
+): MicromarkHandle {
+  return function exit(this: CompileContext): undefined {
     const stack = this.getData('directiveStack')
     assert(stack, 'expected directive stack')
     const directive = stack.pop()

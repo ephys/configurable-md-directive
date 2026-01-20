@@ -8,25 +8,25 @@ import process from 'node:process'
 import test from 'node:test'
 import {isHidden} from 'is-hidden'
 import {remark} from 'remark'
-import remarkDirective from '@ephys/remark-directive'
+import {remarkDirective} from '@ephys/remark-directive'
 
-test('remarkDirective', async function (t) {
-  await t.test('should expose the public api', async function () {
+test('remarkDirective', async (t) => {
+  await t.test('should expose the public api', async () => {
     assert.deepEqual(
       Object.keys(await import('@ephys/remark-directive')).sort(),
-      ['default']
+      ['remarkDirective'].sort()
     )
   })
 
-  await t.test('should not throw if not passed options', async function () {
-    assert.doesNotThrow(function () {
+  await t.test('should not throw if not passed options', async () => {
+    assert.doesNotThrow(() => {
       remark().use(remarkDirective).freeze()
     })
   })
 })
 
-test('fixtures', async function (t) {
-  const base = new URL('fixtures/', import.meta.url)
+test('fixtures', async (t) => {
+  const base = new URL('./fixtures/', import.meta.url)
   const folders = await fs.readdir(base)
 
   let index = -1
@@ -34,13 +34,15 @@ test('fixtures', async function (t) {
   while (++index < folders.length) {
     const folder = folders[index]
 
-    if (isHidden(folder)) continue
+    if (isHidden(folder)) {
+      continue
+    }
 
-    await t.test(folder, async function () {
-      const folderUrl = new URL(folder + '/', base)
-      const inputUrl = new URL('input.md', folderUrl)
-      const outputUrl = new URL('output.md', folderUrl)
-      const treeUrl = new URL('tree.json', folderUrl)
+    await t.test(folder, async () => {
+      const folderUrl = new URL(`${folder}/`, base)
+      const inputUrl = new URL('./input.md', folderUrl)
+      const outputUrl = new URL('./output.md', folderUrl)
+      const treeUrl = new URL('./tree.json', folderUrl)
 
       const input = String(await fs.readFile(inputUrl))
 
@@ -68,7 +70,7 @@ test('fixtures', async function (t) {
         expected = actual
 
         // New fixture.
-        await fs.writeFile(treeUrl, JSON.stringify(actual, undefined, 2) + '\n')
+        await fs.writeFile(treeUrl, `${JSON.stringify(actual, undefined, 2)}\n`)
       }
 
       assert.deepEqual(actual, expected)

@@ -15,6 +15,7 @@ import {
   createExit
 } from './html-shared.js'
 import type {HtmlOptions} from './index.js'
+import {EMPTY_OBJECT} from '@sequelize/utils'
 
 /**
  * Create an extension for `micromark` to support container directives when
@@ -27,7 +28,7 @@ import type {HtmlOptions} from './index.js'
  *   support container directives when serializing to HTML.
  */
 export function directiveContainerHtml(
-  options: HtmlOptions = {}
+  options: HtmlOptions = EMPTY_OBJECT
 ): HtmlExtension {
   return {
     enter: {

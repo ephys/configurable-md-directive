@@ -39,17 +39,20 @@ export function factoryAttributes(
     effects.enter(attributesMarkerType)
     effects.consume(code)
     effects.exit(attributesMarkerType)
+
     return between
   }
 
   function between(code: Code): State | undefined {
     if (code === codes.numberSign) {
       type = attributeIdType
+
       return shortcutStart(code)
     }
 
     if (code === codes.dot) {
       type = attributeClassType
+
       return shortcutStart(code)
     }
 
@@ -75,17 +78,19 @@ export function factoryAttributes(
     effects.enter(attributeType)
     effects.enter(attributeNameType)
     effects.consume(code)
+
     return name
   }
 
   function shortcutStart(code: Code): State | undefined {
     // Assume it's registered.
-    const markerType = (type + 'Marker') as TokenType
+    const markerType = `${type}Marker` as TokenType
     effects.enter(attributeType)
     effects.enter(type)
     effects.enter(markerType)
     effects.consume(code)
     effects.exit(markerType)
+
     return shortcutStartAfter
   }
 
@@ -107,9 +112,10 @@ export function factoryAttributes(
     }
 
     // Assume it's registered.
-    const valueType = (type + 'Value') as TokenType
+    const valueType = `${type}Value` as TokenType
     effects.enter(valueType)
     effects.consume(code)
+
     return shortcut
   }
 
@@ -133,14 +139,16 @@ export function factoryAttributes(
       markdownLineEndingOrSpace(code)
     ) {
       // Assume it's registered.
-      const valueType = (type + 'Value') as TokenType
+      const valueType = `${type}Value` as TokenType
       effects.exit(valueType)
       effects.exit(type)
       effects.exit(attributeType)
+
       return between(code)
     }
 
     effects.consume(code)
+
     return shortcut
   }
 
@@ -169,6 +177,7 @@ export function factoryAttributes(
     }
 
     effects.consume(code)
+
     return name
   }
 
@@ -177,11 +186,13 @@ export function factoryAttributes(
       effects.enter(attributeInitializerType)
       effects.consume(code)
       effects.exit(attributeInitializerType)
+
       return valueBefore
     }
 
     // Attribute w/o value.
     effects.exit(attributeType)
+
     return between(code)
   }
 
@@ -204,6 +215,7 @@ export function factoryAttributes(
       effects.consume(code)
       effects.exit(attributeValueMarker)
       marker = code
+
       return valueQuotedStart
     }
 
@@ -219,6 +231,7 @@ export function factoryAttributes(
     effects.enter(attributeValueData)
     effects.consume(code)
     marker = undefined
+
     return valueUnquoted
   }
 
@@ -239,10 +252,12 @@ export function factoryAttributes(
       effects.exit(attributeValueData)
       effects.exit(attributeValueType)
       effects.exit(attributeType)
+
       return between(code)
     }
 
     effects.consume(code)
+
     return valueUnquoted
   }
 
@@ -253,16 +268,19 @@ export function factoryAttributes(
       effects.exit(attributeValueMarker)
       effects.exit(attributeValueLiteralType)
       effects.exit(attributeType)
+
       return valueQuotedAfter
     }
 
     effects.enter(attributeValueType)
+
     return valueQuotedBetween(code)
   }
 
   function valueQuotedBetween(code: Code): State | undefined {
     if (code === marker) {
       effects.exit(attributeValueType)
+
       return valueQuotedStart(code)
     }
 
@@ -279,16 +297,19 @@ export function factoryAttributes(
 
     effects.enter(attributeValueData)
     effects.consume(code)
+
     return valueQuoted
   }
 
   function valueQuoted(code: Code): State | undefined {
     if (code === marker || code === codes.eof || markdownLineEnding(code)) {
       effects.exit(attributeValueData)
+
       return valueQuotedBetween(code)
     }
 
     effects.consume(code)
+
     return valueQuoted
   }
 
@@ -304,6 +325,7 @@ export function factoryAttributes(
       effects.consume(code)
       effects.exit(attributesMarkerType)
       effects.exit(attributesType)
+
       return ok
     }
 

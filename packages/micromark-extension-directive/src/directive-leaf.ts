@@ -28,6 +28,7 @@ function tokenizeDirectiveLeaf(
     effects.enter('directiveLeaf')
     effects.enter('directiveLeafSequence')
     effects.consume(code)
+
     return inStart
   }
 
@@ -35,6 +36,7 @@ function tokenizeDirectiveLeaf(
     if (code === codes.colon) {
       effects.consume(code)
       effects.exit('directiveLeafSequence')
+
       return factoryName(this, effects, afterName, nok, 'directiveLeafName')
     }
 
@@ -60,6 +62,7 @@ function tokenizeDirectiveLeaf(
   const end = (code: Parameters<State>[0]): ReturnType<State> => {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit('directiveLeaf')
+
       return ok(code)
     }
 

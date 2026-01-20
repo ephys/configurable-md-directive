@@ -24,7 +24,9 @@ import type {HtmlOptions} from './index.js'
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support leaf directives when serializing to HTML.
  */
-export function directiveLeafHtml(options: HtmlOptions = {}): HtmlExtension {
+export function directiveLeafHtml(
+  options: HtmlOptions | undefined
+): HtmlExtension {
   const exit = createExit(options)
 
   return {

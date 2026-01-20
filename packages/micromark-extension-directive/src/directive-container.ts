@@ -28,18 +28,19 @@ function tokenizeDirectiveContainer(
   ok: Parameters<Tokenizer>[1],
   nok: Parameters<Tokenizer>[2]
 ): ReturnType<Tokenizer> {
-  const tail = this.events[this.events.length - 1]
+  const tail = this.events.at(-1)
   const initialSize =
-    tail && tail[1].type === types.linePrefix
+    tail?.[1].type === types.linePrefix
       ? tail[2].sliceSerialize(tail[1], true).length
       : 0
   let sizeOpen = 0
-  let previous: Token
+  let previous: Token | undefined
 
   const sequenceOpen = (code: Parameters<State>[0]): ReturnType<State> => {
     if (code === codes.colon) {
       effects.consume(code)
       sizeOpen++
+
       return sequenceOpen
     }
 
@@ -48,6 +49,7 @@ function tokenizeDirectiveContainer(
     }
 
     effects.exit('directiveContainerSequence')
+
     return factoryName(
       this,
       effects,
@@ -62,6 +64,7 @@ function tokenizeDirectiveContainer(
     effects.enter('directiveContainer')
     effects.enter('directiveContainerFence')
     effects.enter('directiveContainerSequence')
+
     return sequenceOpen(code)
   }
 
@@ -113,6 +116,7 @@ function tokenizeDirectiveContainer(
     }
 
     effects.enter('directiveContainerContent')
+
     return lineStart(code)
   }
 
@@ -141,6 +145,7 @@ function tokenizeDirectiveContainer(
     if (code === codes.eof) {
       const t = effects.exit(types.chunkDocument)
       this.parser.lazy[t.start.line] = false
+
       return afterContent(code)
     }
 
@@ -149,6 +154,7 @@ function tokenizeDirectiveContainer(
     }
 
     effects.consume(code)
+
     return contentContinue
   }
 
@@ -157,8 +163,13 @@ function tokenizeDirectiveContainer(
       contentType: constants.contentTypeDocument,
       previous
     })
-    if (previous) previous.next = token
+
+    if (previous) {
+      previous.next = token
+    }
+
     previous = token
+
     return contentContinue(code)
   }
 
@@ -166,6 +177,7 @@ function tokenizeDirectiveContainer(
     code: Parameters<State>[0]
   ): ReturnType<State> => {
     effects.enter('directiveContainerContent')
+
     return lineStart(code)
   }
 
@@ -173,35 +185,40 @@ function tokenizeDirectiveContainer(
     effects.consume(code)
     const t = effects.exit(types.chunkDocument)
     this.parser.lazy[t.start.line] = false
+
     return lineStart
   }
 
   const lineAfter = (code: Parameters<State>[0]): ReturnType<State> => {
     const t = effects.exit(types.chunkDocument)
     this.parser.lazy[t.start.line] = false
+
     return afterContent(code)
   }
 
   const afterContent = (code: Parameters<State>[0]): ReturnType<State> => {
     effects.exit('directiveContainerContent')
+
     return after(code)
   }
 
   const after = (code: Parameters<State>[0]): ReturnType<State> => {
     effects.exit('directiveContainer')
+
     return ok(code)
   }
 
-  const tokenizeClosingFence = function (
+  const tokenizeClosingFence = function tokenizeClosingFence(
     this: TokenizeContext,
-    effects: Parameters<Tokenizer>[0],
-    ok: Parameters<Tokenizer>[1],
-    nok: Parameters<Tokenizer>[2]
+    closingEffects: Parameters<Tokenizer>[0],
+    closingOk: Parameters<Tokenizer>[1],
+    closingNok: Parameters<Tokenizer>[2]
   ): ReturnType<Tokenizer> {
     let size = 0
     assert(this.parser.constructs.disable.null, 'expected `disable.null`')
+
     return factorySpace(
-      effects,
+      closingEffects,
       closingPrefixAfter,
       types.linePrefix,
       this.parser.constructs.disable.null.includes('codeIndented')
@@ -210,30 +227,41 @@ function tokenizeDirectiveContainer(
     )
 
     function closingPrefixAfter(code: Parameters<State>[0]): ReturnType<State> {
-      effects.enter('directiveContainerFence')
-      effects.enter('directiveContainerSequence')
+      closingEffects.enter('directiveContainerFence')
+      closingEffects.enter('directiveContainerSequence')
+
       return closingSequence(code)
     }
 
     function closingSequence(code: Parameters<State>[0]): ReturnType<State> {
       if (code === codes.colon) {
-        effects.consume(code)
+        closingEffects.consume(code)
         size++
+
         return closingSequence
       }
 
-      if (size < sizeOpen) return nok(code)
-      effects.exit('directiveContainerSequence')
-      return factorySpace(effects, closingSequenceEnd, types.whitespace)(code)
+      if (size < sizeOpen) {
+        return closingNok(code)
+      }
+
+      closingEffects.exit('directiveContainerSequence')
+
+      return factorySpace(
+        closingEffects,
+        closingSequenceEnd,
+        types.whitespace
+      )(code)
     }
 
     function closingSequenceEnd(code: Parameters<State>[0]): ReturnType<State> {
       if (code === codes.eof || markdownLineEnding(code)) {
-        effects.exit('directiveContainerFence')
-        return ok(code)
+        closingEffects.exit('directiveContainerFence')
+
+        return closingOk(code)
       }
 
-      return nok(code)
+      return closingNok(code)
     }
   }
 
@@ -299,6 +327,7 @@ function tokenizeNonLazyLine(
     effects.enter(types.lineEnding)
     effects.consume(code)
     effects.exit(types.lineEnding)
+
     return lineStart
   }
 

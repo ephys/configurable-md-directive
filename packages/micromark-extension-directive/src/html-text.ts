@@ -19,12 +19,14 @@ import type {HtmlOptions} from './index.js'
  * serializing to HTML.
  *
  * @param options
- *   Configuration (default: `{}`).
+ *   Configuration.
  * @returns
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support text directives when serializing to HTML.
  */
-export function directiveTextHtml(options: HtmlOptions = {}): HtmlExtension {
+export function directiveTextHtml(
+  options: HtmlOptions | undefined
+): HtmlExtension {
   const exit = createExit(options)
 
   return {

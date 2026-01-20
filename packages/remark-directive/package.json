@@ -12,23 +12,29 @@
   },
   "description": "remark plugin to support directives",
   "devDependencies": {
+    "@ephys/eslint-config-typescript": "^21.0.1",
     "@types/node": "^22.0.0",
     "c8": "^10.0.0",
+    "eslint": "^9.39.2",
     "is-hidden": "^2.0.0",
+    "mdast-util-from-markdown": "^2.0.0",
+    "mdast-util-to-markdown": "^2.0.0",
+    "micromark-util-types": "^2.0.0",
     "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.3.0",
     "remark": "^15.0.0",
     "remark-cli": "^12.0.0",
     "remark-preset-wooorm": "^11.0.0",
     "to-vfile": "^8.0.0",
     "type-coverage": "^2.0.0",
-    "typescript": "^5.0.0",
-    "xo": "^0.60.0"
+    "typescript": "^5.0.0"
   },
-  "exports": "./index.js",
+  "exports": {
+    "default": "./lib/index.js"
+  },
   "files": [
-    "index.d.ts",
-    "index.js",
-    "lib/"
+    "lib/",
+    "src/"
   ],
   "funding": {
     "type": "opencollective",
@@ -63,7 +69,7 @@
   "repository": "remarkjs/remark-directive",
   "scripts": {
     "build": "tsc --build --clean && tsc --build && type-coverage",
-    "format": "remark --frail --output --quiet -- . && prettier --log-level warn --write -- . && xo --fix",
+    "format": "remark --frail --output --quiet -- . && prettier --log-level warn --write -- . && eslint --fix .",
     "prepack": "npm run build && npm run format",
     "test-api": "node --conditions development test/index.js",
     "test-coverage": "c8 --100 --reporter lcov -- npm run test-api",
@@ -75,44 +81,5 @@
     "strict": true
   },
   "type": "module",
-  "version": "4.0.0",
-  "xo": {
-    "overrides": [
-      {
-        "files": [
-          "**/*.d.ts"
-        ],
-        "rules": {
-          "@typescript-eslint/array-type": [
-            "error",
-            {
-              "default": "generic"
-            }
-          ],
-          "@typescript-eslint/ban-types": [
-            "error",
-            {
-              "extendDefaults": true
-            }
-          ],
-          "@typescript-eslint/consistent-type-definitions": [
-            "error",
-            "interface"
-          ]
-        }
-      },
-      {
-        "files": [
-          "test/**/*.js"
-        ],
-        "rules": {
-          "no-await-in-loop": "off"
-        }
-      }
-    ],
-    "prettier": true,
-    "rules": {
-      "logical-assignment-operators": "off"
-    }
-  }
+  "version": "4.0.0"
 }
