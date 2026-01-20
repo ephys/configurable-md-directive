@@ -1,15 +1,11 @@
 # remark-directive
 
-[![Build][badge-build-image]][badge-build-url]
-[![Coverage][badge-coverage-image]][badge-coverage-url]
-[![Downloads][badge-downloads-image]][badge-downloads-url]
-[![Size][badge-size-image]][badge-size-url]
+**[remark][github-remark]** plugin to support
+the [generic directives proposal][commonmark-directive-proposal]:
 
-**[remark][github-remark]** plugin to support the
-[generic directives proposal][commonmark-directive-proposal]
-(`:cite[smith04]`,
-`::youtube[Video of a cat in a box]{v=01ab2cd3efg}`,
-and such).
+* Text directives (`:abbr[HTML]{title="HyperText Markup Language"}`),
+* Leaf directives (`::hr{.red}`),
+* Container directives (`:::main{#readme} ... :::`).
 
 ## Contents
 
@@ -17,34 +13,23 @@ and such).
 * [When should I use this?](#when-should-i-use-this)
 * [Install](#install)
 * [Use](#use)
-* [API](#api)
-  * [`unified().use(remarkDirective[, options])`](#unifieduseremarkdirective-options)
+  * [Notes](#notes)
   * [`Options`](#options)
 * [Examples](#examples)
   * [Example: YouTube](#example-youtube)
   * [Example: Styled blocks](#example-styled-blocks)
-* [Authoring](#authoring)
-* [HTML](#html)
-* [CSS](#css)
 * [Syntax](#syntax)
 * [Syntax tree](#syntax-tree)
-* [Types](#types)
-* [Compatibility](#compatibility)
-* [Security](#security)
-* [Related](#related)
-* [Contribute](#contribute)
-* [License](#license)
 
 ## What is this?
 
-This package is a [unified][github-unified]
-([remark][github-remark])
+This package is a [unified][github-unified] ([remark][github-remark])
 plugin to add support for directives:
-one syntax for arbitrary extensions in markdown.
+a syntax for arbitrary extensions in Markdown.
 
 ## When should I use this?
 
-Directives are one of the four ways to extend markdown:
+Directives are one of the four ways to extend Markdown:
 an arbitrary extension syntax
 (see [Extending markdown][github-micromark-extending-markdown]
 in micromark’s docs for the alternatives and more info).
@@ -79,20 +64,6 @@ install with [npm][npmjs-install]:
 npm install remark-directive
 ```
 
-In Deno with [`esm.sh`][esmsh]:
-
-```js
-import remarkDirective from 'https://esm.sh/remark-directive@3'
-```
-
-In browsers with [`esm.sh`][esmsh]:
-
-```html
-<script type="module">
-  import remarkDirective from 'https://esm.sh/remark-directive@3?bundle'
-</script>
-```
-
 ## Use
 
 Say our document `example.md` contains:
@@ -113,16 +84,10 @@ A :i[lovely] language know as :abbr[HTML]{title="HyperText Markup Language"}.
 …and our module `example.js` contains:
 
 ```js
-/**
- * @import {} from 'mdast-util-directive'
- * @import {} from 'mdast-util-to-hast'
- * @import {Root} from 'mdast'
- */
-
 import {h} from 'hastscript'
 import rehypeFormat from 'rehype-format'
 import rehypeStringify from 'rehype-stringify'
-import remarkDirective from '@ephys/remark-directive'
+import {remarkDirective} from '@ephys/remark-directive'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import {read} from 'to-vfile'
@@ -131,7 +96,7 @@ import {visit} from 'unist-util-visit'
 
 const file = await unified()
   .use(remarkParse)
-  .use(remarkDirective)
+  .use(remarkDirective())
   .use(myRemarkPlugin)
   .use(remarkRehype)
   .use(rehypeFormat)
@@ -178,54 +143,19 @@ function myRemarkPlugin() {
 </main>
 ```
 
-## API
+### Notes
 
-This package exports no identifiers.
-The default export is [`remarkDirective`][api-remark-directive].
-
-### `unified().use(remarkDirective[, options])`
-
-Add support for generic directives.
-
-###### Parameters
-
-* `options`
-  ([`Options`][api-options], optional)
-  — configuration
-
-###### Returns
-
-Nothing (`undefined`).
-
-###### Notes
-
-Doesn’t handle the directives:
-[create your own plugin][unifiedjs-create-remark-plugin] to do that.
+This plugin only parses the directives syntax.
+You need to [create your own plugin][unifiedjs-create-remark-plugin]
+to handle the resulting nodes in the syntax tree (see *Use* and *Examples*).
 
 ### `Options`
 
-Configuration (TypeScript type).
+You can pass the following options to `remarkDirective`:
 
-###### Fields
-
-* `collapseEmptyAttributes`
-  (`boolean`, default: `true`)
-  — collapse empty attributes: get `title` instead of `title=""`
-* `preferShortcut`
-  (`boolean`, default: `true`)
-  — prefer `#` and `.` shortcuts for `id` and `class`
-* `preferUnquoted`
-  (`boolean`, default: `false`)
-  — leave attributes unquoted if that results in less bytes
-* `quoteSmart`
-  (`boolean`, default: `false`)
-  — use the other quote if that results in less bytes
-* `quote`
-  (`'"'` or `"'"`,
-  default:
-  the [`quote`][github-remark-stringify-quote] used by `remark-stringify` for
-  titles)
-  — preferred quote to use around attribute values
+* `directiveTypes`
+  (Array of `'text' | 'leaf' | 'container'`, default: `['text', 'leaf', 'container']`)
+  — types of directives to support
 
 ## Examples
 
@@ -379,143 +309,21 @@ if you chose xxx, you should also use yyy somewhere…
 </div>
 ```
 
-## Authoring
-
-When authoring markdown with directives,
-keep in mind that they don’t work in most places.
-On your own site it can be great!
-
-## HTML
-
-You can define how directives are turned into HTML.
-If directives are not handled,
-they do not emit anything.
-
-## CSS
-
-How to display directives is left as an exercise for the reader.
-
 ## Syntax
 
 See [*Syntax* in
-`micromark-extension-directive`](https://github.com/micromark/micromark-extension-directive#syntax).
+`micromark-extension-directive`](../micromark-extension-directive).
 
 ## Syntax tree
 
 See [*Syntax tree* in
 `mdast-util-directive`](https://github.com/syntax-tree/mdast-util-directive#syntax-tree).
 
-## Types
-
-This package is fully typed with [TypeScript][].
-It exports no additional options.
-
-If you’re working with the syntax tree,
-you can register the new node types with `@types/mdast` by adding a reference:
-
-```js
-/**
- * @import {} from 'mdast-util-directive'
- * @import {Root} from 'mdast'
- */
-
-import {visit} from 'unist-util-visit'
-
-function myRemarkPlugin() {
-  /**
-   * @param {Root} tree
-   *   Tree.
-   * @returns {undefined}
-   *   Nothing.
-   */
-  return (tree) => {
-    visit(tree, function (node) {
-      console.log(node) // `node` can now be one of the nodes for directives.
-    })
-  }
-}
-```
-
-## Compatibility
-
-Projects maintained by the unified collective are compatible with maintained
-versions of Node.js.
-
-When we cut a new major release,
-we drop support for unmaintained versions of Node.
-This means we try to keep the current release line,
-`remark-directive@3`,
-compatible with Node.js 16.
-
-## Security
-
-Use of `remark-directive` does not involve **[rehype][github-rehype]**
-([hast][github-hast])
-or user content so there are no openings for
-[cross-site scripting (XSS)][wikipedia-xss] attacks.
-
-## Related
-
-* [`remark-gfm`](https://github.com/remarkjs/remark-gfm)
-  — support GFM
-  (autolink literals, footnotes, strikethrough, tables, tasklists)
-* [`remark-frontmatter`](https://github.com/remarkjs/remark-frontmatter)
-  — support frontmatter
-  (YAML, TOML, and more)
-* [`remark-math`](https://github.com/remarkjs/remark-math)
-  — support math
-* [`remark-mdx`](https://github.com/mdx-js/mdx/tree/main/packages/remark-mdx)
-  — support MDX
-  (ESM, JSX, expressions)
-
-## Contribute
-
-See [`contributing.md`][health-contributing]
-in
-[`remarkjs/.github`][health]
-for ways to get started.
-See [`support.md`][health-support] for ways to get help.
-
-This project has a [code of conduct][health-coc].
-By interacting with this repository,
-organization,
-or community you agree to abide by its terms.
-
-## License
-
-[MIT][file-license] © [Titus Wormer][wooorm]
-
 <!-- Definitions -->
-
-[api-options]: #options
-
-[api-remark-directive]: #unifieduseremarkdirective-options
-
-[badge-build-image]: https://github.com/remarkjs/remark-directive/workflows/main/badge.svg
-
-[badge-build-url]: https://github.com/remarkjs/remark-directive/actions
-
-[badge-coverage-image]: https://img.shields.io/codecov/c/github/remarkjs/remark-directive.svg
-
-[badge-coverage-url]: https://codecov.io/github/remarkjs/remark-directive
-
-[badge-downloads-image]: https://img.shields.io/npm/dm/remark-directive.svg
-
-[badge-downloads-url]: https://www.npmjs.com/package/remark-directive
-
-[badge-size-image]: https://img.shields.io/bundlejs/size/remark-directive
-
-[badge-size-url]: https://bundlejs.com/?q=remark-directive
 
 [commonmark-directive-proposal]: https://talk.commonmark.org/t/generic-directives-plugins-syntax/444
 
-[esmsh]: https://esm.sh
-
-[file-license]: license
-
 [github-gist-esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
-
-[github-hast]: https://github.com/syntax-tree/hast
 
 [github-mdast-util-directive]: https://github.com/syntax-tree/mdast-util-directive
 
@@ -527,28 +335,10 @@ or community you agree to abide by its terms.
 
 [github-micromark-extension-directive]: https://github.com/micromark/micromark-extension-directive
 
-[github-rehype]: https://github.com/rehypejs/rehype
-
 [github-remark]: https://github.com/remarkjs/remark
-
-[github-remark-stringify-quote]: https://github.com/remarkjs/remark/tree/main/packages/remark-stringify#options
 
 [github-unified]: https://github.com/unifiedjs/unified
 
-[health]: https://github.com/remarkjs/.github
-
-[health-coc]: https://github.com/remarkjs/.github/blob/main/code-of-conduct.md
-
-[health-contributing]: https://github.com/remarkjs/.github/blob/main/contributing.md
-
-[health-support]: https://github.com/remarkjs/.github/blob/main/support.md
-
 [npmjs-install]: https://docs.npmjs.com/cli/install
 
-[typescript]: https://www.typescriptlang.org
-
 [unifiedjs-create-remark-plugin]: https://unifiedjs.com/learn/guide/create-a-remark-plugin/
-
-[wikipedia-xss]: https://en.wikipedia.org/wiki/Cross-site_scripting
-
-[wooorm]: https://wooorm.com

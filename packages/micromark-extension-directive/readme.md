@@ -1,13 +1,5 @@
 # micromark-extension-directive
 
-[![Build][build-badge]][build]
-[![Coverage][coverage-badge]][coverage]
-[![Downloads][downloads-badge]][downloads]
-[![Size][size-badge]][size]
-[![Sponsors][sponsors-badge]][collective]
-[![Backers][backers-badge]][collective]
-[![Chat][chat-badge]][chat]
-
 [micromark][] extensions to support [directives][prop] (`:cite[smith04]` and
 such).
 
@@ -17,30 +9,31 @@ such).
 * [When to use this](#when-to-use-this)
 * [Install](#install)
 * [Use](#use)
-* [API](#api)
-  * [`directiveContainer()`](#directivecontainer)
-  * [`directiveLeaf()`](#directiveleaf)
-  * [`directiveText()`](#directivetext)
-  * [`directiveContainerHtml(options?)`](#directivecontainerhtmloptions)
-  * [`directiveLeafHtml(options?)`](#directiveleafhtmloptions)
-  * [`directiveTextHtml(options?)`](#directivetexthtmloptions)
-  * [`Directive`](#directive)
-  * [`Handle`](#handle)
-  * [`HtmlOptions`](#htmloptions)
-* [Authoring](#authoring)
-* [HTML](#html)
-* [CSS](#css)
 * [Syntax](#syntax)
-* [Compatibility](#compatibility)
-* [Security](#security)
 * [Related](#related)
-* [Contribute](#contribute)
-* [License](#license)
 
 ## What is this?
 
 This package contains two extensions that add support for directive syntax in
-markdown to [`micromark`][micromark].
+markdown to [`micromark`][micromark]:
+
+* Container directives (blocks with content):
+
+  ```markdown
+  :::spoiler
+  He dies.
+  :::
+  ```
+* Leaf directives (blocks without content):
+
+  ```markdown
+  ::youtube[Video of a cat in a box]{vid=01ab2cd3
+  ```
+* Text directives (inlines):
+
+  ```markdown
+  He got cited:cite[smith04]
+  ```
 
 ## When to use this
 
@@ -55,33 +48,17 @@ you can combine this package with
 [`mdast-util-directive`][mdast-util-directive].
 
 All these packages are used [`remark-directive`][remark-directive],
-which focusses on making it easier to transform content by abstracting these
+which focuses on making it easier to transform content by abstracting these
 internals away.
 
 ## Install
 
 This package is [ESM only][esm].
-In Node.js (version 16+),
-install with [npm][]:
 
 [npm][]:
 
 ```sh
 npm install micromark-extension-directive
-```
-
-In Deno with [`esm.sh`][esmsh]:
-
-```js
-import {directiveText, directiveTextHtml} from 'https://esm.sh/micromark-extension-directive@4'
-```
-
-In browsers with [`esm.sh`][esmsh]:
-
-```html
-<script type="module">
-  import {directiveText, directiveTextHtml} from 'https://esm.sh/micromark-extension-directive@4?bundle'
-</script>
 ```
 
 All available exports:
@@ -176,176 +153,6 @@ const output = micromark(document, {
 <p>A lovely language know as <abbr title="HyperText Markup Language">HTML</abbr>.</p>
 ```
 
-## API
-
-This package exports the identifiers
-[`directiveContainer`][api-directive-container],
-[`directiveLeaf`][api-directive-leaf],
-[`directiveText`][api-directive-text],
-[`directiveContainerHtml`][api-directive-container-html],
-[`directiveLeafHtml`][api-directive-leaf-html],
-and [`directiveTextHtml`][api-directive-text-html].
-There is no default export.
-It exports the [TypeScript][] types
-[`Directive`][api-directive-type],
-[`Handle`][api-handle],
-and [`HtmlOptions`][api-html-options].
-
-The export map supports the [`development` condition][development].
-Run `node --conditions development module.js` to get instrumented dev code.
-Without this condition,
-production code is loaded.
-
-### `directiveContainer()`
-
-Create an extension for `micromark` to enable container directive syntax.
-
-###### Returns
-
-Extension for `micromark` that can be passed in `extensions`,
-to enable container directive syntax
-([`Extension`][micromark-extension]).
-
-### `directiveLeaf()`
-
-Create an extension for `micromark` to enable leaf directive syntax.
-
-###### Returns
-
-Extension for `micromark` that can be passed in `extensions`,
-to enable leaf directive syntax
-([`Extension`][micromark-extension]).
-
-### `directiveText()`
-
-Create an extension for `micromark` to enable text directive syntax.
-
-###### Returns
-
-Extension for `micromark` that can be passed in `extensions`,
-to enable text directive syntax
-([`Extension`][micromark-extension]).
-
-### `directiveContainerHtml(options?)`
-
-Create an extension for `micromark` to support container directives when
-serializing to HTML.
-
-###### Parameters
-
-* `options`
-  ([`HtmlOptions`][api-html-options], default: `{}`)
-  — configuration
-
-###### Returns
-
-Extension for `micromark` that can be passed in `htmlExtensions`,
-to support container directives when serializing to HTML
-([`HtmlExtension`][micromark-html-extension]).
-
-### `directiveLeafHtml(options?)`
-
-Create an extension for `micromark` to support leaf directives when
-serializing to HTML.
-
-###### Parameters
-
-* `options`
-  ([`HtmlOptions`][api-html-options], default: `{}`)
-  — configuration
-
-###### Returns
-
-Extension for `micromark` that can be passed in `htmlExtensions`,
-to support leaf directives when serializing to HTML
-([`HtmlExtension`][micromark-html-extension]).
-
-### `directiveTextHtml(options?)`
-
-Create an extension for `micromark` to support text directives when
-serializing to HTML.
-
-###### Parameters
-
-* `options`
-  ([`HtmlOptions`][api-html-options], default: `{}`)
-  — configuration
-
-###### Returns
-
-Extension for `micromark` that can be passed in `htmlExtensions`,
-to support text directives when serializing to HTML
-([`HtmlExtension`][micromark-html-extension]).
-
-### `Directive`
-
-Structure representing a directive (TypeScript type).
-
-###### Fields
-
-* `type`
-  (`'containerDirective'`, `'leafDirective'`, or `'textDirective'`)
-  — kind
-* `name`
-  (`string`)
-  — name of directive
-* `label`
-  (`string` or `undefined`)
-  — compiled HTML content that was in `[brackets]`
-* `attributes`
-  (`Record<string, string>` or `undefined`)
-  — object w/ HTML attributes
-* `content`
-  (`string` or `undefined`)
-  — compiled HTML content inside container directive
-
-### `Handle`
-
-Handle a directive (TypeScript type).
-
-###### Parameters
-
-* `this` ([`CompileContext`][micromark-compile-context])
-  — current context
-* `directive` ([`Directive`][api-directive-type])
-  — directive
-
-###### Returns
-
-Signal whether the directive was handled
-(`boolean`, default: `true`).
-Yield `false` to let the fallback (a special handle for `'*'`) handle it.
-
-### `HtmlOptions`
-
-Configuration (TypeScript type).
-
-> 👉 **Note**:
-> the special field `'*'` can be used to specify a fallback handle to handle
-> all otherwise unhandled directives.
-
-###### Type
-
-```ts
-type HtmlOptions = Record<string, Handle>
-```
-
-## Authoring
-
-When authoring markdown with directives,
-keep in mind that they don’t work in most places.
-On your own site it can be great!
-
-## HTML
-
-You can define how directives are turned into HTML.
-If directives are not handled,
-they do not emit anything.
-
-## CSS
-
-How to display directives is left as an exercise for the reader.
-
 ## Syntax
 
 The syntax looks like this:
@@ -433,125 +240,23 @@ this implementation mimics CommonMark as closely as possible:
   (~~`::a[b\nc]`~~)
   — because it’s not allowed in fenced code either
 
-## Compatibility
-
-Projects maintained by the unified collective are compatible with maintained
-versions of Node.js.
-
-When we cut a new major release,
-we drop support for unmaintained versions of Node.
-This means we try to keep the current release line,
-`micromark-extension-directive@4`,
-compatible with Node.js 16.
-
-This package works with `micromark` version `4` and later.
-
-## Security
-
-This package is safe assuming that you write safe handlers.
-Any vulnerability in your code could open you to a
-[cross-site scripting (XSS)][xss] attack.
-
 ## Related
 
-* [`remark-directive`][remark-directive]
+* [`@ephys/remark-directive`][remark-directive]
   — remark plugin to support directives
 * [`mdast-util-directive`][mdast-util-directive]
   — mdast utility to support directives
 
-## Contribute
-
-See [`contributing.md` in `micromark/.github`][contributing] for ways to get
-started.
-See [`support.md`][support] for ways to get help.
-
-This project has a [code of conduct][coc].
-By interacting with this repository,
-organization,
-or community you agree to abide by its terms.
-
-## License
-
-[MIT][license] © [Titus Wormer][author]
-
 <!-- Definitions -->
 
-[api-directive-container]: #directivecontainer
-
-[api-directive-container-html]: #directivecontainerhtmloptions
-
-[api-directive-leaf]: #directiveleaf
-
-[api-directive-leaf-html]: #directiveleafhtmloptions
-
-[api-directive-text]: #directivetext
-
-[api-directive-text-html]: #directivetexthtmloptions
-
-[api-directive-type]: #directive
-
-[api-handle]: #handle
-
-[api-html-options]: #htmloptions
-
-[author]: https://wooorm.com
-
-[backers-badge]: https://opencollective.com/unified/backers/badge.svg
-
-[build]: https://github.com/micromark/micromark-extension-directive/actions
-
-[build-badge]: https://github.com/micromark/micromark-extension-directive/workflows/main/badge.svg
-
-[chat]: https://github.com/micromark/micromark/discussions
-
-[chat-badge]: https://img.shields.io/badge/chat-discussions-success.svg
-
-[coc]: https://github.com/micromark/.github/blob/main/code-of-conduct.md
-
-[collective]: https://opencollective.com/unified
-
-[contributing]: https://github.com/micromark/.github/blob/main/contributing.md
-
-[coverage]: https://codecov.io/github/micromark/micromark-extension-directive
-
-[coverage-badge]: https://img.shields.io/codecov/c/github/micromark/micromark-extension-directive.svg
-
-[development]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
-
-[downloads]: https://www.npmjs.com/package/micromark-extension-directive
-
-[downloads-badge]: https://img.shields.io/npm/dm/micromark-extension-directive.svg
-
 [esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
-
-[esmsh]: https://esm.sh
-
-[license]: license
 
 [mdast-util-directive]: https://github.com/syntax-tree/mdast-util-directive
 
 [micromark]: https://github.com/micromark/micromark
 
-[micromark-compile-context]: https://github.com/micromark/micromark/blob/41e3c4c/packages/micromark-util-types/index.js#L457
-
-[micromark-extension]: https://github.com/micromark/micromark#syntaxextension
-
-[micromark-html-extension]: https://github.com/micromark/micromark#htmlextension
-
 [npm]: https://docs.npmjs.com/cli/install
 
 [prop]: https://talk.commonmark.org/t/generic-directives-plugins-syntax/444
 
-[remark-directive]: https://github.com/remarkjs/remark-directive
-
-[size]: https://bundlejs.com/?q=micromark-extension-directive
-
-[size-badge]: https://img.shields.io/badge/dynamic/json?label=minzipped%20size&query=$.size.compressedSize&url=https://deno.bundlejs.com/?q=micromark-extension-directive
-
-[sponsors-badge]: https://opencollective.com/unified/sponsors/badge.svg
-
-[support]: https://github.com/micromark/.github/blob/main/support.md
-
-[typescript]: https://www.typescriptlang.org
-
-[xss]: https://en.wikipedia.org/wiki/Cross-site_scripting
+[remark-directive]: https://github.com/ephys/configurable-md-directive/tree/main/packages/remark-directive

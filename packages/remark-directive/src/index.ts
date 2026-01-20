@@ -40,31 +40,33 @@ const DEFAULT_DIRECTIVE_TYPES: Array<'text' | 'leaf' | 'container'> = [
  *
  * Doesn't handle the directives: create your own plugin to do that.
  */
-export function remarkDirective(this: Processor<Root>, options: Options): void {
-  const data = this.data()
+export function remarkDirective(this: void, options: Options | undefined) {
+  return function builtRemarkDirectivePlugin(this: Processor<Root>) {
+    const data = this.data()
 
-  const micromarkExtensions = data.micromarkExtensions || []
-  data.micromarkExtensions = micromarkExtensions
+    const micromarkExtensions = data.micromarkExtensions || []
+    data.micromarkExtensions = micromarkExtensions
 
-  const fromMarkdownExtensions = data.fromMarkdownExtensions || []
-  data.fromMarkdownExtensions = fromMarkdownExtensions
+    const fromMarkdownExtensions = data.fromMarkdownExtensions || []
+    data.fromMarkdownExtensions = fromMarkdownExtensions
 
-  const toMarkdownExtensions = data.toMarkdownExtensions || []
-  data.toMarkdownExtensions = toMarkdownExtensions
+    const toMarkdownExtensions = data.toMarkdownExtensions || []
+    data.toMarkdownExtensions = toMarkdownExtensions
 
-  const directiveTypes = options.directiveTypes ?? DEFAULT_DIRECTIVE_TYPES
-  if (directiveTypes.includes('leaf')) {
-    micromarkExtensions.push(directiveLeaf())
+    const directiveTypes = options?.directiveTypes ?? DEFAULT_DIRECTIVE_TYPES
+    if (directiveTypes.includes('leaf')) {
+      micromarkExtensions.push(directiveLeaf())
+    }
+
+    if (directiveTypes.includes('container')) {
+      micromarkExtensions.push(directiveContainer())
+    }
+
+    if (directiveTypes.includes('text')) {
+      micromarkExtensions.push(directiveText())
+    }
+
+    fromMarkdownExtensions.push(directiveFromMarkdown())
+    toMarkdownExtensions.push(directiveToMarkdown())
   }
-
-  if (directiveTypes.includes('container')) {
-    micromarkExtensions.push(directiveContainer())
-  }
-
-  if (directiveTypes.includes('text')) {
-    micromarkExtensions.push(directiveText())
-  }
-
-  fromMarkdownExtensions.push(directiveFromMarkdown())
-  toMarkdownExtensions.push(directiveToMarkdown())
 }
