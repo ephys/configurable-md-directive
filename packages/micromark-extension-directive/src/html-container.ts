@@ -1,8 +1,4 @@
-/**
- * @import {HtmlOptions} from '@ephys/micromark-extension-directive'
- * @import {HtmlExtension} from 'micromark-util-types'
- */
-
+import type {HtmlExtension} from 'micromark-util-types'
 import {
   enter,
   enterAttributes,
@@ -18,20 +14,21 @@ import {
   exitContainerFence,
   createExit
 } from './html-shared.js'
+import type {HtmlOptions} from './index.js'
 
 /**
  * Create an extension for `micromark` to support container directives when
  * serializing to HTML.
  *
- * @param {HtmlOptions | undefined} [options={}]
+ * @param options
  *   Configuration (default: `{}`).
- * @returns {HtmlExtension}
+ * @returns
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support container directives when serializing to HTML.
  */
-export function directiveContainerHtml(options = {}) {
-  const exit = createExit(options)
-
+export function directiveContainerHtml(
+  options: HtmlOptions = {}
+): HtmlExtension {
   return {
     enter: {
       directiveContainer() {
@@ -44,7 +41,7 @@ export function directiveContainerHtml(options = {}) {
       }
     },
     exit: {
-      directiveContainer: exit,
+      directiveContainer: createExit(options),
       directiveContainerAttributeClassValue: exitAttributeClassValue,
       directiveContainerAttributeIdValue: exitAttributeIdValue,
       directiveContainerAttributeName: exitAttributeName,

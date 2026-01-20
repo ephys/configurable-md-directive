@@ -1,27 +1,28 @@
-/**
- * @import {Construct, Previous, State, TokenizeContext, Tokenizer} from 'micromark-util-types'
- */
-
+import type {
+  Construct,
+  Previous,
+  State,
+  TokenizeContext,
+  Tokenizer
+} from 'micromark-util-types'
 import {ok as assert} from 'devlop'
 import {codes, types} from 'micromark-util-symbol'
 import {factoryAttributes} from './factory-attributes.js'
 import {factoryLabel} from './factory-label.js'
 import {factoryName} from './factory-name.js'
 
-/** @type {Construct} */
-export const directiveText = {
+export const directiveText: Construct = {
   tokenize: tokenizeDirectiveText,
   previous
 }
 
-const label = {tokenize: tokenizeLabel, partial: true}
-const attributes = {tokenize: tokenizeAttributes, partial: true}
+const label: Construct = {tokenize: tokenizeLabel, partial: true}
+const attributes: Construct = {tokenize: tokenizeAttributes, partial: true}
 
-/**
- * @this {TokenizeContext}
- * @type {Previous}
- */
-function previous(code) {
+function previous(
+  this: TokenizeContext,
+  code: Parameters<Previous>[0]
+): ReturnType<Previous> {
   // If there is a previous code, there will always be a tail.
   return (
     code !== codes.colon ||
@@ -29,28 +30,23 @@ function previous(code) {
   )
 }
 
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeDirectiveText(effects, ok, nok) {
-  const self = this
-
-  return start
-
-  /** @type {State} */
-  function start(code) {
+function tokenizeDirectiveText(
+  this: TokenizeContext,
+  effects: Parameters<Tokenizer>[0],
+  ok: Parameters<Tokenizer>[1],
+  nok: Parameters<Tokenizer>[2]
+): ReturnType<Tokenizer> {
+  const start = (code: Parameters<State>[0]): ReturnType<State> => {
     assert(code === codes.colon, 'expected `:`')
-    assert(previous.call(self, self.previous), 'expected correct previous')
+    assert(previous.call(this, this.previous), 'expected correct previous')
     effects.enter('directiveText')
     effects.enter('directiveTextMarker')
     effects.consume(code)
     effects.exit('directiveTextMarker')
-    return factoryName.call(self, effects, afterName, nok, 'directiveTextName')
+    return factoryName(this, effects, afterName, nok, 'directiveTextName')
   }
 
-  /** @type {State} */
-  function afterName(code) {
+  const afterName = (code: Parameters<State>[0]): ReturnType<State> => {
     return code === codes.colon
       ? nok(code)
       : code === codes.leftSquareBracket
@@ -58,25 +54,26 @@ function tokenizeDirectiveText(effects, ok, nok) {
         : afterLabel(code)
   }
 
-  /** @type {State} */
-  function afterLabel(code) {
+  const afterLabel = (code: Parameters<State>[0]): ReturnType<State> => {
     return code === codes.leftCurlyBrace
       ? effects.attempt(attributes, afterAttributes, afterAttributes)(code)
       : afterAttributes(code)
   }
 
-  /** @type {State} */
-  function afterAttributes(code) {
+  const afterAttributes = (code: Parameters<State>[0]): ReturnType<State> => {
     effects.exit('directiveText')
     return ok(code)
   }
+
+  return start
 }
 
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeLabel(effects, ok, nok) {
+function tokenizeLabel(
+  this: TokenizeContext,
+  effects: Parameters<Tokenizer>[0],
+  ok: Parameters<Tokenizer>[1],
+  nok: Parameters<Tokenizer>[2]
+): ReturnType<Tokenizer> {
   // Always a `[`
   return factoryLabel(
     effects,
@@ -88,11 +85,12 @@ function tokenizeLabel(effects, ok, nok) {
   )
 }
 
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeAttributes(effects, ok, nok) {
+function tokenizeAttributes(
+  this: TokenizeContext,
+  effects: Parameters<Tokenizer>[0],
+  ok: Parameters<Tokenizer>[1],
+  nok: Parameters<Tokenizer>[2]
+): ReturnType<Tokenizer> {
   // Always a `{`
   return factoryAttributes(
     effects,

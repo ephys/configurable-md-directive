@@ -1,7 +1,4 @@
-/**
- * @import {Code, Effects, State, TokenType} from 'micromark-util-types'
- */
-
+import type {Code, Effects, State, TokenType} from 'micromark-util-types'
 import {ok as assert} from 'devlop'
 import {factorySpace} from 'micromark-factory-space'
 import {factoryWhitespace} from 'micromark-factory-whitespace'
@@ -14,49 +11,29 @@ import {
 } from 'micromark-util-character'
 import {codes, types} from 'micromark-util-symbol'
 
-/**
- * @param {Effects} effects
- * @param {State} ok
- * @param {State} nok
- * @param {TokenType} attributesType
- * @param {TokenType} attributesMarkerType
- * @param {TokenType} attributeType
- * @param {TokenType} attributeIdType
- * @param {TokenType} attributeClassType
- * @param {TokenType} attributeNameType
- * @param {TokenType} attributeInitializerType
- * @param {TokenType} attributeValueLiteralType
- * @param {TokenType} attributeValueType
- * @param {TokenType} attributeValueMarker
- * @param {TokenType} attributeValueData
- * @param {boolean | undefined} [disallowEol=false]
- */
 export function factoryAttributes(
-  effects,
-  ok,
-  nok,
-  attributesType,
-  attributesMarkerType,
-  attributeType,
-  attributeIdType,
-  attributeClassType,
-  attributeNameType,
-  attributeInitializerType,
-  attributeValueLiteralType,
-  attributeValueType,
-  attributeValueMarker,
-  attributeValueData,
-  disallowEol
-) {
-  /** @type {TokenType} */
-  let type
-  /** @type {Code | undefined} */
-  let marker
+  effects: Effects,
+  ok: State,
+  nok: State,
+  attributesType: TokenType,
+  attributesMarkerType: TokenType,
+  attributeType: TokenType,
+  attributeIdType: TokenType,
+  attributeClassType: TokenType,
+  attributeNameType: TokenType,
+  attributeInitializerType: TokenType,
+  attributeValueLiteralType: TokenType,
+  attributeValueType: TokenType,
+  attributeValueMarker: TokenType,
+  attributeValueData: TokenType,
+  disallowEol?: boolean
+): State {
+  let type: TokenType
+  let marker: Code | undefined
 
   return start
 
-  /** @type {State} */
-  function start(code) {
+  function start(code: Code): State | undefined {
     assert(code === codes.leftCurlyBrace, 'expected `{`')
     effects.enter(attributesType)
     effects.enter(attributesMarkerType)
@@ -65,8 +42,7 @@ export function factoryAttributes(
     return between
   }
 
-  /** @type {State} */
-  function between(code) {
+  function between(code: Code): State | undefined {
     if (code === codes.numberSign) {
       type = attributeIdType
       return shortcutStart(code)
@@ -102,10 +78,9 @@ export function factoryAttributes(
     return name
   }
 
-  /** @type {State} */
-  function shortcutStart(code) {
-    // Assume it’s registered.
-    const markerType = /** @type {TokenType} */ (type + 'Marker')
+  function shortcutStart(code: Code): State | undefined {
+    // Assume it's registered.
+    const markerType = (type + 'Marker') as TokenType
     effects.enter(attributeType)
     effects.enter(type)
     effects.enter(markerType)
@@ -114,8 +89,7 @@ export function factoryAttributes(
     return shortcutStartAfter
   }
 
-  /** @type {State} */
-  function shortcutStartAfter(code) {
+  function shortcutStartAfter(code: Code): State | undefined {
     if (
       code === codes.eof ||
       code === codes.quotationMark ||
@@ -132,15 +106,14 @@ export function factoryAttributes(
       return nok(code)
     }
 
-    // Assume it’s registered.
-    const valueType = /** @type {TokenType} */ (type + 'Value')
+    // Assume it's registered.
+    const valueType = (type + 'Value') as TokenType
     effects.enter(valueType)
     effects.consume(code)
     return shortcut
   }
 
-  /** @type {State} */
-  function shortcut(code) {
+  function shortcut(code: Code): State | undefined {
     if (
       code === codes.eof ||
       code === codes.quotationMark ||
@@ -159,8 +132,8 @@ export function factoryAttributes(
       code === codes.rightCurlyBrace ||
       markdownLineEndingOrSpace(code)
     ) {
-      // Assume it’s registered.
-      const valueType = /** @type {TokenType} */ (type + 'Value')
+      // Assume it's registered.
+      const valueType = (type + 'Value') as TokenType
       effects.exit(valueType)
       effects.exit(type)
       effects.exit(attributeType)
@@ -171,8 +144,7 @@ export function factoryAttributes(
     return shortcut
   }
 
-  /** @type {State} */
-  function name(code) {
+  function name(code: Code): State | undefined {
     if (
       code === codes.eof ||
       markdownLineEnding(code) ||
@@ -200,8 +172,7 @@ export function factoryAttributes(
     return name
   }
 
-  /** @type {State} */
-  function nameAfter(code) {
+  function nameAfter(code: Code): State | undefined {
     if (code === codes.equalsTo) {
       effects.enter(attributeInitializerType)
       effects.consume(code)
@@ -214,8 +185,7 @@ export function factoryAttributes(
     return between(code)
   }
 
-  /** @type {State} */
-  function valueBefore(code) {
+  function valueBefore(code: Code): State | undefined {
     if (
       code === codes.eof ||
       code === codes.lessThan ||
@@ -252,8 +222,7 @@ export function factoryAttributes(
     return valueUnquoted
   }
 
-  /** @type {State} */
-  function valueUnquoted(code) {
+  function valueUnquoted(code: Code): State | undefined {
     if (
       code === codes.eof ||
       code === codes.quotationMark ||
@@ -277,8 +246,7 @@ export function factoryAttributes(
     return valueUnquoted
   }
 
-  /** @type {State} */
-  function valueQuotedStart(code) {
+  function valueQuotedStart(code: Code): State | undefined {
     if (code === marker) {
       effects.enter(attributeValueMarker)
       effects.consume(code)
@@ -292,8 +260,7 @@ export function factoryAttributes(
     return valueQuotedBetween(code)
   }
 
-  /** @type {State} */
-  function valueQuotedBetween(code) {
+  function valueQuotedBetween(code: Code): State | undefined {
     if (code === marker) {
       effects.exit(attributeValueType)
       return valueQuotedStart(code)
@@ -303,7 +270,7 @@ export function factoryAttributes(
       return nok(code)
     }
 
-    // Note: blank lines can’t exist in content.
+    // Note: blank lines can't exist in content.
     if (markdownLineEnding(code)) {
       return disallowEol
         ? nok(code)
@@ -315,8 +282,7 @@ export function factoryAttributes(
     return valueQuoted
   }
 
-  /** @type {State} */
-  function valueQuoted(code) {
+  function valueQuoted(code: Code): State | undefined {
     if (code === marker || code === codes.eof || markdownLineEnding(code)) {
       effects.exit(attributeValueData)
       return valueQuotedBetween(code)
@@ -326,15 +292,13 @@ export function factoryAttributes(
     return valueQuoted
   }
 
-  /** @type {State} */
-  function valueQuotedAfter(code) {
+  function valueQuotedAfter(code: Code): State | undefined {
     return code === codes.rightCurlyBrace || markdownLineEndingOrSpace(code)
       ? between(code)
       : end(code)
   }
 
-  /** @type {State} */
-  function end(code) {
+  function end(code: Code): State | undefined {
     if (code === codes.rightCurlyBrace) {
       effects.enter(attributesMarkerType)
       effects.consume(code)

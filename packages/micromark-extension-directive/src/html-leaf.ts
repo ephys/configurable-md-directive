@@ -1,8 +1,4 @@
-/**
- * @import {HtmlOptions} from '@ephys/micromark-extension-directive'
- * @import {HtmlExtension} from 'micromark-util-types'
- */
-
+import type {HtmlExtension} from 'micromark-util-types'
 import {
   enter,
   enterAttributes,
@@ -16,18 +12,19 @@ import {
   exitAttributes,
   createExit
 } from './html-shared.js'
+import type {HtmlOptions} from './index.js'
 
 /**
  * Create an extension for `micromark` to support leaf directives when
  * serializing to HTML.
  *
- * @param {HtmlOptions | undefined} [options={}]
+ * @param options
  *   Configuration (default: `{}`).
- * @returns {HtmlExtension}
+ * @returns
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support leaf directives when serializing to HTML.
  */
-export function directiveLeafHtml(options = {}) {
+export function directiveLeafHtml(options: HtmlOptions = {}): HtmlExtension {
   const exit = createExit(options)
 
   return {

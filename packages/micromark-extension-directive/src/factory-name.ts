@@ -1,7 +1,10 @@
-/**
- * @import {Code, Effects, State, TokenizeContext, TokenType} from 'micromark-util-types'
- */
-
+import type {
+  Code,
+  Effects,
+  State,
+  TokenizeContext,
+  TokenType
+} from 'micromark-util-types'
 import {
   markdownLineEnding,
   unicodePunctuation,
@@ -9,20 +12,14 @@ import {
 } from 'micromark-util-character'
 import {codes} from 'micromark-util-symbol'
 
-/**
- * @this {TokenizeContext}
- * @param {Effects} effects
- * @param {State} ok
- * @param {State} nok
- * @param {TokenType} type
- */
-export function factoryName(effects, ok, nok, type) {
-  const self = this
-
-  return start
-
-  /** @type {State} */
-  function start(code) {
+export function factoryName(
+  context: TokenizeContext,
+  effects: Effects,
+  ok: State,
+  nok: State,
+  type: TokenType
+): State {
+  function start(code: Code): State | undefined {
     if (
       code === codes.eof ||
       markdownLineEnding(code) ||
@@ -37,8 +34,7 @@ export function factoryName(effects, ok, nok, type) {
     return name
   }
 
-  /** @type {State} */
-  function name(code) {
+  function name(code: Code): State | undefined {
     if (
       code === codes.eof ||
       markdownLineEnding(code) ||
@@ -48,7 +44,8 @@ export function factoryName(effects, ok, nok, type) {
         code !== codes.underscore)
     ) {
       effects.exit(type)
-      return self.previous === codes.dash || self.previous === codes.underscore
+      return context.previous === codes.dash ||
+        context.previous === codes.underscore
         ? nok(code)
         : ok(code)
     }
@@ -56,4 +53,6 @@ export function factoryName(effects, ok, nok, type) {
     effects.consume(code)
     return name
   }
+
+  return start
 }

@@ -1,31 +1,21 @@
 import type {CompileContext} from 'micromark-util-types'
 
-export {directiveContainer} from './lib/syntax-container.js'
-export {directiveLeaf} from './lib/syntax-leaf.js'
-export {directiveText} from './lib/syntax-text.js'
-export {directiveContainerHtml} from './lib/html-container.js'
-export {directiveLeafHtml} from './lib/html-leaf.js'
-export {directiveTextHtml} from './lib/html-text.js'
-
-/**
- * Internal tuple representing an attribute.
- */
-type AttributeTuple = [key: string, value: string]
+export {directiveContainer} from './syntax-container.js'
+export {directiveLeaf} from './syntax-leaf.js'
+export {directiveText} from './syntax-text.js'
+export {directiveContainerHtml} from './html-container.js'
+export {directiveLeafHtml} from './html-leaf.js'
+export {directiveTextHtml} from './html-text.js'
 
 /**
  * Directive attribute.
  */
-interface Attributes {
-  /**
-   * Key to value.
-   */
-  [key: string]: string
-}
+type Attributes = Record<string, string>
 
 /**
  * Structure representing a directive.
  */
-export interface Directive {
+export type Directive = {
   /**
    * Private :)
    */
@@ -75,20 +65,20 @@ export type Handle = (
  * > 👉 **Note**: the special field `'*'` can be used to specify a fallback
  * > handle to handle all otherwise unhandled directives.
  */
-export interface HtmlOptions {
-  [name: string]: Handle
-}
+export type HtmlOptions = Record<string, Handle>
 
 /**
- * Augment types.
+ * Internal tuple representing an attribute.
  */
+type AttributeTuple = [key: string, value: string]
+
 declare module 'micromark-util-types' {
   /**
    * Compile data.
    */
   interface CompileData {
-    directiveAttributes?: Array<AttributeTuple>
-    directiveStack?: Array<Directive>
+    directiveAttributes?: AttributeTuple[]
+    directiveStack?: Directive[]
   }
 
   /**

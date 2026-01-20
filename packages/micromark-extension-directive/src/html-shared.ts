@@ -1,66 +1,52 @@
-/**
- * @import {Directive, HtmlOptions} from '@ephys/micromark-extension-directive'
- * @import {CompileContext, Handle as MicromarkHandle} from 'micromark-util-types'
- */
-
+import type {
+  CompileContext,
+  Handle as MicromarkHandle
+} from 'micromark-util-types'
 import {ok as assert} from 'devlop'
 import {parseEntities} from 'parse-entities'
+import type {Directive, HtmlOptions} from './index.js'
 
 export const own = {}.hasOwnProperty
 
-/**
- * @this {CompileContext}
- * @param {Directive['type']} type
- */
-export function enter(type) {
+type AttributeTuple = [key: string, value: string]
+
+export function enter(this: CompileContext, type: Directive['type']): void {
   let stack = this.getData('directiveStack')
   if (!stack) this.setData('directiveStack', (stack = []))
   stack.push({type, name: ''})
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitName(token) {
+export const exitName: MicromarkHandle = function (
+  this: CompileContext,
+  token
+) {
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
   stack[stack.length - 1].name = this.sliceSerialize(token)
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function enterLabel() {
+export const enterLabel: MicromarkHandle = function (this: CompileContext) {
   this.buffer()
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitLabel() {
+export const exitLabel: MicromarkHandle = function (this: CompileContext) {
   const data = this.resume()
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
   stack[stack.length - 1].label = data
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function enterAttributes() {
+export const enterAttributes: MicromarkHandle = function (
+  this: CompileContext
+) {
   this.buffer()
   this.setData('directiveAttributes', [])
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitAttributeIdValue(token) {
+export const exitAttributeIdValue: MicromarkHandle = function (
+  this: CompileContext,
+  token
+) {
   const attributes = this.getData('directiveAttributes')
   assert(attributes, 'expected attributes')
   attributes.push([
@@ -71,11 +57,10 @@ export function exitAttributeIdValue(token) {
   ])
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitAttributeClassValue(token) {
+export const exitAttributeClassValue: MicromarkHandle = function (
+  this: CompileContext,
+  token
+) {
   const attributes = this.getData('directiveAttributes')
   assert(attributes, 'expected attributes')
 
@@ -87,11 +72,10 @@ export function exitAttributeClassValue(token) {
   ])
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitAttributeName(token) {
+export const exitAttributeName: MicromarkHandle = function (
+  this: CompileContext,
+  token
+) {
   // Attribute names in CommonMark are significantly limited, so character
   // references can't exist.
   const attributes = this.getData('directiveAttributes')
@@ -100,11 +84,10 @@ export function exitAttributeName(token) {
   attributes.push([this.sliceSerialize(token), ''])
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitAttributeValue(token) {
+export const exitAttributeValue: MicromarkHandle = function (
+  this: CompileContext,
+  token
+) {
   const attributes = this.getData('directiveAttributes')
   assert(attributes, 'expected attributes')
   attributes[attributes.length - 1][1] = parseEntities(
@@ -113,17 +96,12 @@ export function exitAttributeValue(token) {
   )
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitAttributes() {
+export const exitAttributes: MicromarkHandle = function (this: CompileContext) {
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
   const attributes = this.getData('directiveAttributes')
   assert(attributes, 'expected attributes')
-  /** @type {Record<string, string>} */
-  const cleaned = {}
+  const cleaned: Record<string, string> = {}
   let index = -1
 
   while (++index < attributes.length) {
@@ -141,22 +119,18 @@ export function exitAttributes() {
   stack[stack.length - 1].attributes = cleaned
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitContainerContent() {
+export const exitContainerContent: MicromarkHandle = function (
+  this: CompileContext
+) {
   const data = this.resume()
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
   stack[stack.length - 1].content = data
 }
 
-/**
- * @this {CompileContext}
- * @type {MicromarkHandle}
- */
-export function exitContainerFence() {
+export const exitContainerFence: MicromarkHandle = function (
+  this: CompileContext
+) {
   const stack = this.getData('directiveStack')
   assert(stack, 'expected directive stack')
   const directive = stack[stack.length - 1]
@@ -165,23 +139,14 @@ export function exitContainerFence() {
   if (directive._fenceCount === 1) this.setData('slurpOneLineEnding', true)
 }
 
-/**
- * @param {HtmlOptions} options
- * @returns {MicromarkHandle}
- */
-export function createExit(options) {
-  /**
-   * @this {CompileContext}
-   */
-  return function () {
+export function createExit(options: HtmlOptions): MicromarkHandle {
+  return function (this: CompileContext): undefined {
     const stack = this.getData('directiveStack')
     assert(stack, 'expected directive stack')
     const directive = stack.pop()
     assert(directive, 'expected directive')
-    /** @type {boolean | undefined} */
-    let found
-    /** @type {boolean | undefined} */
-    let result
+    let found: boolean | undefined
+    let result: boolean | undefined
 
     assert(directive.name, 'expected `name`')
 

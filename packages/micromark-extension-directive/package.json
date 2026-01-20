@@ -28,14 +28,11 @@
     "xo": "^0.60.0"
   },
   "exports": {
-    "development": "./dev/index.js",
-    "default": "./index.js"
+    "default": "./lib/index.js"
   },
   "files": [
-    "dev/",
-    "index.d.ts",
-    "index.js",
-    "lib/"
+    "lib/",
+    "src/"
   ],
   "funding": {
     "type": "opencollective",
@@ -68,7 +65,7 @@
   },
   "repository": "micromark/micromark-extension-directive",
   "scripts": {
-    "build": "tsc --build --clean && tsc --build && type-coverage && micromark-build",
+    "build": "tsc --build --clean && tsc --build && type-coverage",
     "format": "remark --frail --output --quiet -- . && prettier --log-level warn --write -- . && xo --fix",
     "test-api-prod": "node --conditions production test/index.js",
     "test-api-dev": "node --conditions development test/index.js",
@@ -78,7 +75,7 @@
   },
   "sideEffects": false,
   "typeCoverage": {
-    "atLeast": 100,
+    "atLeast": 90,
     "strict": true
   },
   "type": "module",

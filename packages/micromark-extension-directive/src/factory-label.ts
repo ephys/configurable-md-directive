@@ -1,7 +1,4 @@
-/**
- * @import {Code, Effects, State, Token, TokenType} from 'micromark-util-types'
- */
-
+import type {Code, Effects, State, Token, TokenType} from 'micromark-util-types'
 import {ok as assert} from 'devlop'
 import {markdownLineEnding} from 'micromark-util-character'
 import {codes, constants, types} from 'micromark-util-symbol'
@@ -11,33 +8,22 @@ import {codes, constants, types} from 'micromark-util-symbol'
 // to allow empty labels, balanced brackets (such as for nested directives),
 // text instead of strings, and optionally disallows EOLs.
 
-/**
- * @param {Effects} effects
- * @param {State} ok
- * @param {State} nok
- * @param {TokenType} type
- * @param {TokenType} markerType
- * @param {TokenType} stringType
- * @param {boolean | undefined} [disallowEol=false]
- */
 export function factoryLabel(
-  effects,
-  ok,
-  nok,
-  type,
-  markerType,
-  stringType,
-  disallowEol
-) {
+  effects: Effects,
+  ok: State,
+  nok: State,
+  type: TokenType,
+  markerType: TokenType,
+  stringType: TokenType,
+  disallowEol?: boolean
+): State {
   let size = 0
   let balance = 0
-  /** @type {Token | undefined} */
-  let previous
+  let previous: Token | undefined
 
   return start
 
-  /** @type {State} */
-  function start(code) {
+  function start(code: Code): State | undefined {
     assert(code === codes.leftSquareBracket, 'expected `[`')
     effects.enter(type)
     effects.enter(markerType)
@@ -46,8 +32,7 @@ export function factoryLabel(
     return afterStart
   }
 
-  /** @type {State} */
-  function afterStart(code) {
+  function afterStart(code: Code): State | undefined {
     if (code === codes.rightSquareBracket) {
       effects.enter(markerType)
       effects.consume(code)
@@ -60,8 +45,7 @@ export function factoryLabel(
     return lineStart(code)
   }
 
-  /** @type {State} */
-  function lineStart(code) {
+  function lineStart(code: Code): State | undefined {
     if (code === codes.rightSquareBracket && !balance) {
       return atClosingBrace(code)
     }
@@ -76,8 +60,7 @@ export function factoryLabel(
     return data(code)
   }
 
-  /** @type {State} */
-  function data(code) {
+  function data(code: Code): State | undefined {
     if (code === codes.eof || size > constants.linkReferenceSizeMax) {
       return nok(code)
     }
@@ -108,8 +91,7 @@ export function factoryLabel(
     return code === codes.backslash ? dataEscape : data
   }
 
-  /** @type {State} */
-  function dataEscape(code) {
+  function dataEscape(code: Code): State | undefined {
     if (
       code === codes.leftSquareBracket ||
       code === codes.backslash ||
@@ -123,8 +105,7 @@ export function factoryLabel(
     return data(code)
   }
 
-  /** @type {State} */
-  function atClosingBrace(code) {
+  function atClosingBrace(code: Code): State | undefined {
     effects.exit(stringType)
     effects.enter(markerType)
     effects.consume(code)

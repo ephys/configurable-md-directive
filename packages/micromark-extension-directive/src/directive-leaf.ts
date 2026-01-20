@@ -1,7 +1,9 @@
-/**
- * @import {Construct, State, TokenizeContext, Tokenizer} from 'micromark-util-types'
- */
-
+import type {
+  Construct,
+  State,
+  TokenizeContext,
+  Tokenizer
+} from 'micromark-util-types'
 import {ok as assert} from 'devlop'
 import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEnding} from 'micromark-util-character'
@@ -10,23 +12,18 @@ import {factoryAttributes} from './factory-attributes.js'
 import {factoryLabel} from './factory-label.js'
 import {factoryName} from './factory-name.js'
 
-/** @type {Construct} */
-export const directiveLeaf = {tokenize: tokenizeDirectiveLeaf}
+export const directiveLeaf: Construct = {tokenize: tokenizeDirectiveLeaf}
 
-const label = {tokenize: tokenizeLabel, partial: true}
-const attributes = {tokenize: tokenizeAttributes, partial: true}
+const label: Construct = {tokenize: tokenizeLabel, partial: true}
+const attributes: Construct = {tokenize: tokenizeAttributes, partial: true}
 
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeDirectiveLeaf(effects, ok, nok) {
-  const self = this
-
-  return start
-
-  /** @type {State} */
-  function start(code) {
+function tokenizeDirectiveLeaf(
+  this: TokenizeContext,
+  effects: Parameters<Tokenizer>[0],
+  ok: Parameters<Tokenizer>[1],
+  nok: Parameters<Tokenizer>[2]
+): ReturnType<Tokenizer> {
+  const start = (code: Parameters<State>[0]): ReturnType<State> => {
     assert(code === codes.colon, 'expected `:`')
     effects.enter('directiveLeaf')
     effects.enter('directiveLeafSequence')
@@ -34,44 +31,33 @@ function tokenizeDirectiveLeaf(effects, ok, nok) {
     return inStart
   }
 
-  /** @type {State} */
-  function inStart(code) {
+  const inStart = (code: Parameters<State>[0]): ReturnType<State> => {
     if (code === codes.colon) {
       effects.consume(code)
       effects.exit('directiveLeafSequence')
-      return factoryName.call(
-        self,
-        effects,
-        afterName,
-        nok,
-        'directiveLeafName'
-      )
+      return factoryName(this, effects, afterName, nok, 'directiveLeafName')
     }
 
     return nok(code)
   }
 
-  /** @type {State} */
-  function afterName(code) {
+  const afterName = (code: Parameters<State>[0]): ReturnType<State> => {
     return code === codes.leftSquareBracket
       ? effects.attempt(label, afterLabel, afterLabel)(code)
       : afterLabel(code)
   }
 
-  /** @type {State} */
-  function afterLabel(code) {
+  const afterLabel = (code: Parameters<State>[0]): ReturnType<State> => {
     return code === codes.leftCurlyBrace
       ? effects.attempt(attributes, afterAttributes, afterAttributes)(code)
       : afterAttributes(code)
   }
 
-  /** @type {State} */
-  function afterAttributes(code) {
+  const afterAttributes = (code: Parameters<State>[0]): ReturnType<State> => {
     return factorySpace(effects, end, types.whitespace)(code)
   }
 
-  /** @type {State} */
-  function end(code) {
+  const end = (code: Parameters<State>[0]): ReturnType<State> => {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit('directiveLeaf')
       return ok(code)
@@ -79,13 +65,16 @@ function tokenizeDirectiveLeaf(effects, ok, nok) {
 
     return nok(code)
   }
+
+  return start
 }
 
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeLabel(effects, ok, nok) {
+function tokenizeLabel(
+  this: TokenizeContext,
+  effects: Parameters<Tokenizer>[0],
+  ok: Parameters<Tokenizer>[1],
+  nok: Parameters<Tokenizer>[2]
+): ReturnType<Tokenizer> {
   // Always a `[`
   return factoryLabel(
     effects,
@@ -98,11 +87,12 @@ function tokenizeLabel(effects, ok, nok) {
   )
 }
 
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeAttributes(effects, ok, nok) {
+function tokenizeAttributes(
+  this: TokenizeContext,
+  effects: Parameters<Tokenizer>[0],
+  ok: Parameters<Tokenizer>[1],
+  nok: Parameters<Tokenizer>[2]
+): ReturnType<Tokenizer> {
   // Always a `{`
   return factoryAttributes(
     effects,
