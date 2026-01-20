@@ -1,7 +1,11 @@
 import type {CompileContext} from 'micromark-util-types'
 
-export {directive} from './lib/syntax.js'
-export {directiveHtml} from './lib/html.js'
+export {directiveContainer} from './lib/syntax-container.js'
+export {directiveLeaf} from './lib/syntax-leaf.js'
+export {directiveText} from './lib/syntax-text.js'
+export {directiveContainerHtml} from './lib/html-container.js'
+export {directiveLeafHtml} from './lib/html-leaf.js'
+export {directiveTextHtml} from './lib/html-text.js'
 
 /**
  * Internal tuple representing an attribute.

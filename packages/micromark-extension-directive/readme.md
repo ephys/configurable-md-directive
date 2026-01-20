@@ -18,9 +18,13 @@ such).
 * [Install](#install)
 * [Use](#use)
 * [API](#api)
-  * [`directive()`](#directive)
-  * [`directiveHtml(options?)`](#directivehtmloptions)
-  * [`Directive`](#directive-1)
+  * [`directiveContainer()`](#directivecontainer)
+  * [`directiveLeaf()`](#directiveleaf)
+  * [`directiveText()`](#directivetext)
+  * [`directiveContainerHtml(options?)`](#directivecontainerhtmloptions)
+  * [`directiveLeafHtml(options?)`](#directiveleafhtmloptions)
+  * [`directiveTextHtml(options?)`](#directivetexthtmloptions)
+  * [`Directive`](#directive)
   * [`Handle`](#handle)
   * [`HtmlOptions`](#htmloptions)
 * [Authoring](#authoring)
@@ -69,15 +73,28 @@ npm install micromark-extension-directive
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-directive@4'
+import {directiveText, directiveTextHtml} from 'https://esm.sh/micromark-extension-directive@4'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-directive@4?bundle'
+  import {directiveText, directiveTextHtml} from 'https://esm.sh/micromark-extension-directive@4?bundle'
 </script>
+```
+
+All available exports:
+
+```js
+import {
+  directiveContainer,
+  directiveLeaf,
+  directiveText,
+  directiveContainerHtml,
+  directiveLeafHtml,
+  directiveTextHtml
+} from '@ephys/micromark-extension-directive'
 ```
 
 ## Use
@@ -98,11 +115,14 @@ A lovely language know as :abbr[HTML]{title="HyperText Markup Language"}.
 
 import fs from 'node:fs/promises'
 import {micromark} from 'micromark'
-import {directive, directiveHtml} from '@ephys/micromark-extension-directive'
+import {
+  directiveText,
+  directiveTextHtml
+} from '@ephys/micromark-extension-directive'
 
 const output = micromark(await fs.readFile('example.md'), {
-  extensions: [directive()],
-  htmlExtensions: [directiveHtml({abbr})]
+  extensions: [directiveText()],
+  htmlExtensions: [directiveTextHtml({abbr})]
 })
 
 console.log(output)
@@ -127,6 +147,29 @@ function abbr(d) {
 }
 ```
 
+To support all directive types, combine the extensions:
+
+```js
+import {micromark} from 'micromark'
+import {
+  directiveContainer,
+  directiveLeaf,
+  directiveText,
+  directiveContainerHtml,
+  directiveLeafHtml,
+  directiveTextHtml
+} from '@ephys/micromark-extension-directive'
+
+const output = micromark(document, {
+  extensions: [directiveText(), directiveLeaf(), directiveContainer()],
+  htmlExtensions: [
+    directiveTextHtml({abbr}),
+    directiveLeafHtml({}),
+    directiveContainerHtml({})
+  ]
+})
+```
+
 …now running `node example.js` yields:
 
 ```html
@@ -135,8 +178,13 @@ function abbr(d) {
 
 ## API
 
-This package exports the identifiers [`directive`][api-directive] and
-[`directiveHtml`][api-directive-html].
+This package exports the identifiers
+[`directiveContainer`][api-directive-container],
+[`directiveLeaf`][api-directive-leaf],
+[`directiveText`][api-directive-text],
+[`directiveContainerHtml`][api-directive-container-html],
+[`directiveLeafHtml`][api-directive-leaf-html],
+and [`directiveTextHtml`][api-directive-text-html].
 There is no default export.
 It exports the [TypeScript][] types
 [`Directive`][api-directive-type],
@@ -148,23 +196,40 @@ Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition,
 production code is loaded.
 
-### `directive()`
+### `directiveContainer()`
 
-Create an extension for `micromark` to enable directive syntax.
+Create an extension for `micromark` to enable container directive syntax.
 
 ###### Returns
 
 Extension for `micromark` that can be passed in `extensions`,
-to enable directive syntax
+to enable container directive syntax
 ([`Extension`][micromark-extension]).
 
-### `directiveHtml(options?)`
+### `directiveLeaf()`
 
-Create an extension for `micromark` to support directives when serializing to
-HTML.
+Create an extension for `micromark` to enable leaf directive syntax.
 
-> 👉 **Note**:
-> this uses KaTeX to render math.
+###### Returns
+
+Extension for `micromark` that can be passed in `extensions`,
+to enable leaf directive syntax
+([`Extension`][micromark-extension]).
+
+### `directiveText()`
+
+Create an extension for `micromark` to enable text directive syntax.
+
+###### Returns
+
+Extension for `micromark` that can be passed in `extensions`,
+to enable text directive syntax
+([`Extension`][micromark-extension]).
+
+### `directiveContainerHtml(options?)`
+
+Create an extension for `micromark` to support container directives when
+serializing to HTML.
 
 ###### Parameters
 
@@ -175,7 +240,41 @@ HTML.
 ###### Returns
 
 Extension for `micromark` that can be passed in `htmlExtensions`,
-to support directives when serializing to HTML
+to support container directives when serializing to HTML
+([`HtmlExtension`][micromark-html-extension]).
+
+### `directiveLeafHtml(options?)`
+
+Create an extension for `micromark` to support leaf directives when
+serializing to HTML.
+
+###### Parameters
+
+* `options`
+  ([`HtmlOptions`][api-html-options], default: `{}`)
+  — configuration
+
+###### Returns
+
+Extension for `micromark` that can be passed in `htmlExtensions`,
+to support leaf directives when serializing to HTML
+([`HtmlExtension`][micromark-html-extension]).
+
+### `directiveTextHtml(options?)`
+
+Create an extension for `micromark` to support text directives when
+serializing to HTML.
+
+###### Parameters
+
+* `options`
+  ([`HtmlOptions`][api-html-options], default: `{}`)
+  — configuration
+
+###### Returns
+
+Extension for `micromark` that can be passed in `htmlExtensions`,
+to support text directives when serializing to HTML
 ([`HtmlExtension`][micromark-html-extension]).
 
 ### `Directive`
@@ -377,11 +476,19 @@ or community you agree to abide by its terms.
 
 <!-- Definitions -->
 
-[api-directive]: #directive
+[api-directive-container]: #directivecontainer
 
-[api-directive-html]: #directivehtmloptions
+[api-directive-container-html]: #directivecontainerhtmloptions
 
-[api-directive-type]: #directive-1
+[api-directive-leaf]: #directiveleaf
+
+[api-directive-leaf-html]: #directiveleafhtmloptions
+
+[api-directive-text]: #directivetext
+
+[api-directive-text-html]: #directivetexthtmloptions
+
+[api-directive-type]: #directive
 
 [api-handle]: #handle
 

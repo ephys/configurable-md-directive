@@ -7,7 +7,11 @@
  */
 
 import {directiveFromMarkdown, directiveToMarkdown} from 'mdast-util-directive'
-import {directive} from '@ephys/micromark-extension-directive'
+import {
+  directiveLeaf,
+  directiveContainer,
+  directiveText
+} from '@ephys/micromark-extension-directive'
 
 /**
  * Add support for generic directives.
@@ -32,7 +36,11 @@ export default function remarkDirective() {
   const toMarkdownExtensions =
     data.toMarkdownExtensions || (data.toMarkdownExtensions = [])
 
-  micromarkExtensions.push(directive())
+  micromarkExtensions.push(
+    directiveLeaf(),
+    directiveContainer(),
+    directiveText()
+  )
   fromMarkdownExtensions.push(directiveFromMarkdown())
   toMarkdownExtensions.push(directiveToMarkdown())
 }
