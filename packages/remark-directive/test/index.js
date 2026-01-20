@@ -8,13 +8,14 @@ import process from 'node:process'
 import test from 'node:test'
 import {isHidden} from 'is-hidden'
 import {remark} from 'remark'
-import remarkDirective from 'remark-directive'
+import remarkDirective from '@ephys/remark-directive'
 
 test('remarkDirective', async function (t) {
   await t.test('should expose the public api', async function () {
-    assert.deepEqual(Object.keys(await import('remark-directive')).sort(), [
-      'default'
-    ])
+    assert.deepEqual(
+      Object.keys(await import('@ephys/remark-directive')).sort(),
+      ['default']
+    )
   })
 
   await t.test('should not throw if not passed options', async function () {

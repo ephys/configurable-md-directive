@@ -1,5 +1,5 @@
 /**
- * @import {Directive, HtmlOptions} from 'micromark-extension-directive'
+ * @import {Directive, HtmlOptions} from '@ephys/micromark-extension-directive'
  * @import {CompileContext, Handle as MicromarkHandle, HtmlExtension} from 'micromark-util-types'
  */
 

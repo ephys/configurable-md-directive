@@ -7,7 +7,7 @@
  */
 
 import {directiveFromMarkdown, directiveToMarkdown} from 'mdast-util-directive'
-import {directive} from 'micromark-extension-directive'
+import {directive} from '@ephys/micromark-extension-directive'
 
 /**
  * Add support for generic directives.

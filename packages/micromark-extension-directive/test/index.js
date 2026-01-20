@@ -1,5 +1,5 @@
 /**
- * @import {Handle, HtmlOptions} from 'micromark-extension-directive'
+ * @import {Handle, HtmlOptions} from '@ephys/micromark-extension-directive'
  * @import {CompileContext} from 'micromark-util-types'
  */
 
@@ -7,14 +7,14 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {micromark} from 'micromark'
 import {htmlVoidElements} from 'html-void-elements'
-import {directive, directiveHtml} from 'micromark-extension-directive'
+import {directive, directiveHtml} from '@ephys/micromark-extension-directive'
 
 const own = {}.hasOwnProperty
 
 test('micromark-extension-directive (core)', async function (t) {
   await t.test('should expose the public api', async function () {
     assert.deepEqual(
-      Object.keys(await import('micromark-extension-directive')).sort(),
+      Object.keys(await import('@ephys/micromark-extension-directive')).sort(),
       ['directive', 'directiveHtml']
     )
   })

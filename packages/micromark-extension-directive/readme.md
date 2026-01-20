@@ -92,13 +92,13 @@ A lovely language know as :abbr[HTML]{title="HyperText Markup Language"}.
 
 ```js
 /**
- * @import {Handle} from 'micromark-extension-directive'
+ * @import {Handle} from '@ephys/micromark-extension-directive'
  * @import {CompileContext} from 'micromark-util-types'
  */
 
 import fs from 'node:fs/promises'
 import {micromark} from 'micromark'
-import {directive, directiveHtml} from 'micromark-extension-directive'
+import {directive, directiveHtml} from '@ephys/micromark-extension-directive'
 
 const output = micromark(await fs.readFile('example.md'), {
   extensions: [directive()],

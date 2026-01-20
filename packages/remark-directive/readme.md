@@ -122,7 +122,7 @@ A :i[lovely] language know as :abbr[HTML]{title="HyperText Markup Language"}.
 import {h} from 'hastscript'
 import rehypeFormat from 'rehype-format'
 import rehypeStringify from 'rehype-stringify'
-import remarkDirective from 'remark-directive'
+import remarkDirective from '@ephys/remark-directive'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import {read} from 'to-vfile'

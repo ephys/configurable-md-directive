@@ -17,6 +17,5 @@
     "url": "git+https://github.com/ephys/configurable-md-directive.git"
   },
   "author": "ephys",
-  "license": "MIT",
-  "devDependencies": {}
+  "license": "MIT"
 }
