@@ -1,0 +1,22 @@
+{
+  "name": "@ephys/configurable-md-directive",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for @ephys/micromark-extension-directive and @ephys/remark-directive",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "format": "npm run format --workspaces"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ephys/configurable-md-directive.git"
+  },
+  "author": "ephys",
+  "license": "MIT",
+  "devDependencies": {}
+}

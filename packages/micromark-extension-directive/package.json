@@ -52,7 +52,7 @@
     "unified"
   ],
   "license": "MIT",
-  "name": "micromark-extension-directive",
+  "name": "@ephys/micromark-extension-directive",
   "prettier": {
     "bracketSpacing": false,
     "semi": false,
