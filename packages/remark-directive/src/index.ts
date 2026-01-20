@@ -19,6 +19,20 @@ declare module 'unified' {
   }
 }
 
+interface Options {
+  /**
+   * Types of directives to support.
+   * @default ['text', 'leaf', 'container']
+   */
+  directiveTypes?: Array<'text' | 'leaf' | 'container'> | undefined
+}
+
+const DEFAULT_DIRECTIVE_TYPES: Array<'text' | 'leaf' | 'container'> = [
+  'text',
+  'leaf',
+  'container'
+]
+
 /**
  * Add support for generic directives.
  *
@@ -26,7 +40,7 @@ declare module 'unified' {
  *
  * Doesn't handle the directives: create your own plugin to do that.
  */
-export function remarkDirective(this: Processor<Root>): void {
+export function remarkDirective(this: Processor<Root>, options: Options): void {
   const data = this.data()
 
   const micromarkExtensions = data.micromarkExtensions || []
@@ -38,11 +52,18 @@ export function remarkDirective(this: Processor<Root>): void {
   const toMarkdownExtensions = data.toMarkdownExtensions || []
   data.toMarkdownExtensions = toMarkdownExtensions
 
-  micromarkExtensions.push(
-    directiveLeaf(),
-    directiveContainer(),
-    directiveText()
-  )
+  const directiveTypes = options.directiveTypes ?? DEFAULT_DIRECTIVE_TYPES
+  if (directiveTypes.includes('leaf')) {
+    micromarkExtensions.push(directiveLeaf())
+  }
+
+  if (directiveTypes.includes('container')) {
+    micromarkExtensions.push(directiveContainer())
+  }
+
+  if (directiveTypes.includes('text')) {
+    micromarkExtensions.push(directiveText())
+  }
 
   fromMarkdownExtensions.push(directiveFromMarkdown())
   toMarkdownExtensions.push(directiveToMarkdown())
