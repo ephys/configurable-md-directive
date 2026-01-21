@@ -3,12 +3,15 @@ import type {Processor} from 'unified'
 import type {Extension as MicromarkExtension} from 'micromark-util-types'
 import type {Extension as FromMarkdownExtension} from 'mdast-util-from-markdown'
 import type {Options as ToMarkdownExtension} from 'mdast-util-to-markdown'
+// eslint-disable-next-line import/no-duplicates -- this one won't be included in the type output
 import {directiveFromMarkdown, directiveToMarkdown} from 'mdast-util-directive'
 import {
   directiveLeaf,
   directiveContainer,
   directiveText
 } from '@ephys/micromark-extension-directive'
+// eslint-disable-next-line import/no-duplicates -- we have to import this to augment the types, this one will be included in the type output
+import 'mdast-util-directive'
 
 // Extend the unified Data interface to include our extension arrays
 declare module 'unified' {
@@ -41,7 +44,7 @@ const DEFAULT_DIRECTIVE_TYPES: Array<'text' | 'leaf' | 'container'> = [
  * Doesn't handle the directives: create your own plugin to do that.
  */
 export function remarkDirective(this: void, options: Options | undefined) {
-  return function builtRemarkDirectivePlugin(this: Processor<Root>) {
+  return function builtRemarkDirectivePlugin(this: Processor<Root>): undefined {
     const data = this.data()
 
     const micromarkExtensions = data.micromarkExtensions || []
